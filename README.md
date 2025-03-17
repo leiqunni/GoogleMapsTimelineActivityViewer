@@ -35,7 +35,8 @@ git clone https://gist.github.com/epk/a70dd9b7a2d5bf8e5d86ebdcaefb6b32
 1. Start a local server in the project directory:
    ```bash
    python -m http.server 8000
-   ```
+   ```![399258736-c512e4a6-296e-4c7f-a79a-b4b313c7efd3](https://github.com/user-attachments/assets/608e77a1-d2a0-43b7-8535-1ff2a307f37e)
+
 2. Open your browser and navigate to [http://localhost:8000](http://localhost:8000).
 
 

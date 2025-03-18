@@ -42,4 +42,4 @@ git clone https://gist.github.com/epk/a70dd9b7a2d5bf8e5d86ebdcaefb6b32
 
 ## Screenshots
 
-![image](https://gist.github.com/user-attachments/assets/c512e4a6-296e-4c7f-a79a-b4b313c7efd3)
+![image](https://github.com/epk/google-maps-timeline-viewer/raw/main/screenshot.png?raw=true)

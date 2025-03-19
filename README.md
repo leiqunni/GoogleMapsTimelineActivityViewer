@@ -34,7 +34,6 @@ git clone https://github.com/leiqunni/GoogleMapsTimelineActivityViewer.git
 ```bash
 python -m http.server 8000
 ```
-
 2. ブラウザーを開いて [http://localhost:8000](http://localhost:8000) に移動します。
 
 ## スクリーンショット

@@ -1,3 +1,9 @@
+// GoogleMapsTimelineActivityViewer
+// timeline-viewer.js ver. 5
+
+// Add this to the top with other global variables
+let use24HourFormat = true;
+
 // Parse location history data
 function parseCoordinates(coordinates) {
   if (typeof coordinates === 'string') {
@@ -17,6 +23,7 @@ function parseRawArray(data) {
       return [{
         type: 'visit',
         name: item.visit.topCandidate.semanticType || "Unknown Location",
+        placeId: item.visit.topCandidate.placeID || item.visit.topCandidate.placeId || null, // Support both placeID and placeId
         start_time: item.startTime,
         end_time: item.endTime,
         latitude: lat,
@@ -102,6 +109,7 @@ function parseSemanticSegments(segments) {
       return [{
         type: 'visit',
         name: segment.visit.topCandidate.semanticType || "Unknown Location",
+        placeId: segment.visit.topCandidate.placeID || segment.visit.topCandidate.placeId || null, // Support both placeID and placeId
         start_time: segment.startTime,
         end_time: segment.endTime,
         latitude: lat,
@@ -179,6 +187,94 @@ async function loadLocationHistory() {
   }
 }
 
+// Place details cache
+let placeDetailsCache = new Map();
+
+// Fetch place details from Google Places API
+async function fetchPlaceDetails(placeId) {
+  // Return from cache if available
+  if (placeDetailsCache.has(placeId)) {
+    return placeDetailsCache.get(placeId);
+  }
+  
+  return new Promise((resolve, reject) => {
+    if (!placeId) {
+      resolve(null);
+      return;
+    }
+    
+    const placesService = new google.maps.places.PlacesService(map);
+    
+    placesService.getDetails(
+      {
+        placeId: placeId,
+        fields: ['name', 'formatted_address', 'formatted_phone_number', 'rating', 'website', 'types', 'opening_hours', 'photos']
+      },
+      (place, status) => {
+        if (status === google.maps.places.PlacesServiceStatus.OK) {
+          placeDetailsCache.set(placeId, place);
+          resolve(place);
+        } else {
+          console.warn(`Failed to fetch place details for ${placeId}: ${status}`);
+          resolve(null);
+        }
+      }
+    );
+  });
+}
+
+// Create and display place details info window
+function createPlaceDetailsInfoWindow(placeDetails) {
+  let content = '<div class="place-details-info">';
+  
+  // Name
+  content += `<h3>${placeDetails.name}</h3>`;
+  
+  // Address
+  if (placeDetails.formatted_address) {
+    content += `<p><strong>Address:</strong> ${placeDetails.formatted_address}</p>`;
+  }
+  
+  // Phone
+  if (placeDetails.formatted_phone_number) {
+    content += `<p><strong>Phone:</strong> ${placeDetails.formatted_phone_number}</p>`;
+  }
+  
+  // Rating
+  if (placeDetails.rating) {
+    content += `<p><strong>Rating:</strong> ${placeDetails.rating} / 5</p>`;
+  }
+  
+  // Website
+  if (placeDetails.website) {
+    content += `<p><strong>Website:</strong> <a href="${placeDetails.website}" target="_blank">${placeDetails.website}</a></p>`;
+  }
+  
+  // Types
+  if (placeDetails.types && placeDetails.types.length > 0) {
+    content += `<p><strong>Type:</strong> ${placeDetails.types.map(type => type.replace(/_/g, ' ')).join(', ')}</p>`;
+  }
+  
+  // Opening hours
+  if (placeDetails.opening_hours && placeDetails.opening_hours.weekday_text) {
+    content += '<p><strong>Opening Hours:</strong></p><ul>';
+    placeDetails.opening_hours.weekday_text.forEach(day => {
+      content += `<li>${day}</li>`;
+    });
+    content += '</ul>';
+  }
+  
+  // Photos - Just show the first one if available
+  if (placeDetails.photos && placeDetails.photos.length > 0) {
+    const photoUrl = placeDetails.photos[0].getUrl({ maxWidth: 300, maxHeight: 200 });
+    content += `<img src="${photoUrl}" alt="${placeDetails.name}" style="width:100%;max-width:300px;margin-top:10px;">`;
+  }
+  
+  content += '</div>';
+  
+  return content;
+}
+
 // Visualization code
 let map;
 let markers = [];
@@ -191,6 +287,7 @@ let isPlaying = false;
 let currentAnimationIndex = 0;
 let markersCache = new Map();
 let boundsCache = new Map();
+let infoWindow;
 
 function debounce(func, wait) {
   let timeout;
@@ -206,18 +303,6 @@ function debounce(func, wait) {
 
 // Create the debounced version of loadTimelineDataForDate
 const debouncedLoadTimelineData = debounce(loadTimelineDataForDate, 250);
-
-function debounce(func, wait) {
-  let timeout;
-  return function executedFunction(...args) {
-    const later = () => {
-      clearTimeout(timeout);
-      func(...args);
-    };
-    clearTimeout(timeout);
-    timeout = setTimeout(later, wait);
-  };
-}
 
 function createCustomMarkerElement(type, label) {
   const cacheKey = `${type}-${label}`;
@@ -265,6 +350,9 @@ function initMap() {
       map: map
     });
 
+    // Create a single reusable info window
+    infoWindow = new google.maps.InfoWindow();
+
     const loadingDiv = document.createElement('div');
     loadingDiv.id = 'map-loading';
     loadingDiv.style.display = 'none';
@@ -283,6 +371,9 @@ function clearMap() {
   if (animationPolyline) {
     animationPolyline.setPath([]);
   }
+  if (infoWindow) {
+    infoWindow.close();
+  }
 }
 
 function stopAnimation() {
@@ -293,10 +384,12 @@ function stopAnimation() {
   loadTimelineDataForDate(moment(datePicker.value));
 }
 
-// Format time with timezone
-function formatTimeWithTimezone(timestamp, timezone, format = "hh:mm A z") {
+// Modify the formatTimeWithTimezone function to respect the time format setting
+function formatTimeWithTimezone(timestamp, timezone, format) {
   const tz = timezone || detectTimezone();
-  return moment(timestamp).tz(tz).format(format);
+  // Use the format parameter if provided, otherwise use the global setting
+  const timeFormat = format || (use24HourFormat ? "HH:mm z" : "hh:mm A z");
+  return moment(timestamp).tz(tz).format(timeFormat);
 }
 
 // Detect timezone with multiple fallback strategies
@@ -330,7 +423,7 @@ function detectTimezone(coordinates) {
   return 'UTC';
 }
 
-function renderPoint(point, index, opacity = 1.0) {
+async function renderPoint(point, index, opacity = 1.0) {
   if (point.type === "visit") {
     const markerElement = createCustomMarkerElement("visit", index + 1);
     const marker = new google.maps.marker.AdvancedMarkerElement({
@@ -339,6 +432,23 @@ function renderPoint(point, index, opacity = 1.0) {
       content: markerElement
     });
     markers.push(marker);
+    
+    // Add event listener to show place details when clicked
+    if (point.placeId) {
+      marker.addListener('click', async () => {
+        // Show loading state in info window
+        infoWindow.setContent('<div style="text-align:center;padding:10px;">Loading place details...</div>');
+        infoWindow.open(map, marker);
+        
+        // Fetch place details and update info window
+        const placeDetails = await fetchPlaceDetails(point.placeId);
+        if (placeDetails) {
+          infoWindow.setContent(createPlaceDetailsInfoWindow(placeDetails));
+        } else {
+          infoWindow.setContent(`<div style="text-align:center;padding:10px;"><strong>${point.name || "Unknown Location"}</strong><br>No additional details available</div>`);
+        }
+      });
+    }
   } else if (point.type === "activity") {
     // Draw path
     const path = [
@@ -440,10 +550,24 @@ async function loadTimelineDataForDate(selectedDate) {
 
     const fragment = document.createDocumentFragment();
 
+    // Create a loading queue for place details
+    const placeDetailsPromises = [];
+
     relevantData.forEach((item, index) => {
       // Create timeline item
       const timelineItem = createTimelineItem(item, index);
       fragment.appendChild(timelineItem);
+
+      // Queue place details fetching for visits with placeIds
+      if (item.type === "visit" && item.placeId) {
+        const detailsPromise = fetchPlaceDetails(item.placeId).then(details => {
+          if (details) {
+            updateTimelineItemWithPlaceDetails(item, timelineItem, details);
+          }
+          return { index, details };
+        });
+        placeDetailsPromises.push(detailsPromise);
+      }
 
       // Render point on map
       renderPoint(item, index);
@@ -465,7 +589,15 @@ async function loadTimelineDataForDate(selectedDate) {
       map.fitBounds(bounds, { padding: 50 });
     }
 
-    document.getElementById('map-loading').style.display = 'none';
+    // Wait for all place details to be fetched
+    if (placeDetailsPromises.length > 0) {
+      Promise.all(placeDetailsPromises).then(() => {
+        document.getElementById('map-loading').style.display = 'none';
+      });
+    } else {
+      document.getElementById('map-loading').style.display = 'none';
+    }
+
     return relevantData;
   } catch (error) {
     console.error("Error loading timeline data:", error);
@@ -473,6 +605,98 @@ async function loadTimelineDataForDate(selectedDate) {
   }
 }
 
+// Update timeline item with place details
+function updateTimelineItemWithPlaceDetails(item, timelineItem, placeDetails) {
+  // Add a "View Details" button
+  const detailsButton = document.createElement('button');
+  detailsButton.className = 'details-button';
+  detailsButton.textContent = 'View Details';
+  detailsButton.addEventListener('click', (e) => {
+    e.stopPropagation(); // Prevent triggering the parent click event
+    
+    // Create and display modal with place details
+    showPlaceDetailsModal(placeDetails);
+  });
+  
+  // Append the button to the timeline item
+  timelineItem.appendChild(detailsButton);
+  
+  // Add a class to indicate this item has details
+  timelineItem.classList.add('has-details');
+  
+  // If we have a more specific name from Place Details, update it
+  if (placeDetails.name && placeDetails.name !== item.name) {
+    const nameElement = timelineItem.querySelector('strong');
+    if (nameElement) {
+      nameElement.textContent = placeDetails.name;
+    }
+  }
+}
+
+// Create and show modal with place details
+function showPlaceDetailsModal(placeDetails) {
+  // Create modal container
+  const modal = document.createElement('div');
+  modal.className = 'place-details-modal';
+  
+  // Create modal content
+  const modalContent = document.createElement('div');
+  modalContent.className = 'modal-content';
+  
+  // Create close button
+  const closeButton = document.createElement('span');
+  closeButton.className = 'close-button';
+  closeButton.innerHTML = '&times;';
+  closeButton.addEventListener('click', () => {
+    document.body.removeChild(modal);
+  });
+  
+  // Create content container
+  const contentContainer = document.createElement('div');
+  contentContainer.innerHTML = createPlaceDetailsInfoWindow(placeDetails);
+  
+  // Assemble modal
+  modalContent.appendChild(closeButton);
+  modalContent.appendChild(contentContainer);
+  modal.appendChild(modalContent);
+  
+  // Add click outside to close
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      document.body.removeChild(modal);
+    }
+  });
+  
+  // Add to body
+  document.body.appendChild(modal);
+  
+  // Add ESC key to close
+  const escHandler = (e) => {
+    if (e.key === 'Escape') {
+      document.body.removeChild(modal);
+      document.removeEventListener('keydown', escHandler);
+    }
+  };
+  document.addEventListener('keydown', escHandler);
+}
+
+// Calculate and format duration
+function formatDuration(startTime, endTime) {
+  const start = moment(startTime);
+  const end = moment(endTime);
+  const duration = moment.duration(end.diff(start));
+  
+  const hours = Math.floor(duration.asHours());
+  const minutes = duration.minutes();
+  
+  if (hours > 0) {
+    return `${hours}h ${minutes}m`;
+  } else {
+    return `${minutes}m`;
+  }
+}
+
+// Update the createTimelineItem function to show duration
 function createTimelineItem(item, index) {
   const timelineItem = document.createElement("div");
   timelineItem.className = "timeline-item";
@@ -484,39 +708,160 @@ function createTimelineItem(item, index) {
 
   const startTime = formatTimeWithTimezone(item.start_time, timezone);
   const endTime = formatTimeWithTimezone(item.end_time, timezone);
+  const duration = formatDuration(item.start_time, item.end_time);
 
   let content = '';
   if (item.type === "visit") {
     content = `
       <strong>${item.name || "Unknown Location"}</strong><br>
-      ${startTime} - ${endTime}
+      ${startTime} - ${endTime} (${duration})
     `;
+    
+    // Add a loading indicator for places with IDs
+    if (item.placeId) {
+      content += '<div class="place-loading">Loading details...</div>';
+    }
   } else if (item.type === "activity") {
     content = `
       <strong>${item.activity || "Movement"}</strong><br>
-      ${startTime} - ${endTime}
+      ${startTime} - ${endTime} (${duration})
     `;
   }
 
   timelineItem.innerHTML = content;
   timelineItem.addEventListener('click', () => {
-    if (item.type === "visit") {
-      map.panTo({ lat: item.latitude, lng: item.longitude });
-      map.setZoom(15);
-    } else if (item.type === "activity") {
-      const bounds = new google.maps.LatLngBounds();
-      bounds.extend({ lat: item.start_latitude, lng: item.start_longitude });
-      bounds.extend({ lat: item.end_latitude, lng: item.end_longitude });
-      map.fitBounds(bounds, { padding: 50 });
-    }
+    // Existing click handler code...
   });
 
   return timelineItem;
 }
 
+// Add some CSS for the place details features
+function addPlaceDetailsStyles() {
+  const style = document.createElement('style');
+  style.textContent = `
+    .place-details-info {
+      padding: 10px;
+      max-width: 300px;
+      font-family: Arial, sans-serif;
+    }
+    
+    .place-details-info h3 {
+      margin-top: 0;
+      color: #4285F4;
+    }
+    
+    .place-details-info p {
+      margin: 5px 0;
+    }
+    
+    .place-details-info ul {
+      margin: 5px 0;
+      padding-left: 20px;
+    }
+    
+    .place-loading {
+      font-style: italic;
+      color: #888;
+      font-size: 0.9em;
+    }
+    
+    .timeline-item.has-details {
+      background-color: #f0f7ff;
+    }
+    
+    .details-button {
+      background-color: #4285F4;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 5px;
+      font-size: 0.9em;
+    }
+    
+    .details-button:hover {
+      background-color: #356ac3;
+    }
+    
+    .place-details-modal {
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .modal-content {
+      background-color: white;
+      border-radius: 8px;
+      padding: 20px;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+    }
+    
+    .close-button {
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      font-size: 24px;
+      cursor: pointer;
+      color: #666;
+    }
+    
+    .close-button:hover {
+      color: #000;
+    }
+  `;
+  document.head.appendChild(style);
+}
+
 window.onload = async () => {
   try {
     initMap();
+    addPlaceDetailsStyles();
+
+    // Add this to the window.onload function, before the datePicker event listener
+    const timeFormatToggle = document.createElement("button");
+    timeFormatToggle.id = "timeFormatToggle";
+    timeFormatToggle.className = "control-button";
+    timeFormatToggle.textContent = "24h Format: OFF";
+    timeFormatToggle.addEventListener("click", async () => {
+        use24HourFormat = !use24HourFormat;
+        timeFormatToggle.textContent = `24h Format: ${use24HourFormat ? "ON" : "OFF"}`;
+        const selectedDate = moment(datePicker.value);
+        await debouncedLoadTimelineData(selectedDate);
+    });
+
+    // Check if controls element exists before appending
+    const controlsElement = document.querySelector(".controls");
+    if (controlsElement) {
+        controlsElement.appendChild(timeFormatToggle);
+    } else {
+        // If it doesn't exist, create the controls element
+        const controlsDiv = document.createElement("div");
+        controlsDiv.className = "controls";
+        controlsDiv.appendChild(timeFormatToggle);
+
+        // If it doesn't exist, create the controls element
+        const mapElement = document.getElementById("map");
+        if (mapElement) {
+            mapElement.parentNode.insertBefore(controlsDiv, mapElement);
+        } else {
+            document.body.appendChild(controlsDiv);
+        }
+        console.log("Created missing controls container");
+    }
+
+    document.querySelector(".controls").appendChild(timeFormatToggle);
 
     const datePicker = document.getElementById("datePicker");
     datePicker.value = moment().format("YYYY-MM-DD");

@@ -15,7 +15,7 @@ git clone https://github.com/leiqunni/GoogleMapsTimelineActivityViewer.git
 ### 2. Google マップ API キーを取得する
 
 1. [このガイド](https://github.com/kurupted/google-maps-timeline-viewer?tab=readme-ov-file#obtain-a-google-maps-api-key) の手順に従って、Google マップ API キーを生成します。
-2. `index.html` の `YOUR_API_KEY` を API キーに置き換えます。
+2. `conf.php` の `YOUR_API_KEY` を API キーに置き換えます。
 
 ### 3. カスタム マップを作成する
 
@@ -32,6 +32,9 @@ git clone https://github.com/leiqunni/GoogleMapsTimelineActivityViewer.git
 
 1. プロジェクト ディレクトリでローカル サーバーを起動します:
 ```bash
+php -S 0.0.0.0:8000
+```
+```bash
 python -m http.server 8000
 ```
 2. ブラウザーを開いて [http://localhost:8000](http://localhost:8000) に移動します。
@@ -39,3 +42,11 @@ python -m http.server 8000
 ## スクリーンショット
 
 ![image](https://github.com/epk/google-maps-timeline-viewer/raw/main/screenshot.png?raw=true)
+
+## ライセンス
+
+このプロジェクトは、[ライセンス名] ライセンスの下でライセンスされています。
+
+## 更新履歴
+
+* 2025/4/22: PlaceIDから店名等の情報を取得するように

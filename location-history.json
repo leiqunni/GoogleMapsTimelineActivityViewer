@@ -1,0 +1,16 @@
+[
+  {
+    "endTime" : "2025-04-20T15:20:45.466+09:00",
+    "startTime" : "2025-04-20T15:05:33.437+09:00",
+    "visit" : {
+      "hierarchyLevel" : "0",
+      "topCandidate" : {
+        "probability" : "0.132723",
+        "semanticType" : "Unknown",
+        "placeID" : "ChIJK0FidUq5GGARGmmCrUhnGek",
+        "placeLocation" : "geo:35.977252,139.752343"
+      },
+      "probability" : "0.150000"
+    }
+  }
+]

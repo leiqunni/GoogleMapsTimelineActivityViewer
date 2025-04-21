@@ -1,3 +1,8 @@
+<?php
+
+require('conf.php');
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -5,10 +10,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Location Timeline Viewer</title>
-  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=marker"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=<?= $apikey ?>&libraries=marker,places"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.43/moment-timezone-with-data.min.js"></script>
   <link rel="stylesheet" href="styles.css">
+    <script>
+    </script>
 </head>
 
 <body>
@@ -25,6 +32,7 @@
           <span class="btn-icon">▶</span>
           <span class="btn-text">Play Timeline</span>
         </button>
+        <div class="controls"></div>
       </div>
 
       <div id="timeline-container">

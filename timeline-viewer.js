@@ -1,6 +1,3 @@
-// GoogleMapsTimelineActivityViewer
-// timeline-viewer.js ver. 5
-
 // Add this to the top with other global variables
 let use24HourFormat = true;
 
@@ -162,6 +159,7 @@ function parseRawSignals(signals) {
 async function loadLocationHistory() {
   try {
     const response = await fetch("location-history.json");
+//    const response = await fetch("Timeline Edits.json");
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -196,15 +194,15 @@ async function fetchPlaceDetails(placeId) {
   if (placeDetailsCache.has(placeId)) {
     return placeDetailsCache.get(placeId);
   }
-  
+
   return new Promise((resolve, reject) => {
     if (!placeId) {
       resolve(null);
       return;
     }
-    
+
     const placesService = new google.maps.places.PlacesService(map);
-    
+
     placesService.getDetails(
       {
         placeId: placeId,
@@ -226,35 +224,35 @@ async function fetchPlaceDetails(placeId) {
 // Create and display place details info window
 function createPlaceDetailsInfoWindow(placeDetails) {
   let content = '<div class="place-details-info">';
-  
+
   // Name
   content += `<h3>${placeDetails.name}</h3>`;
-  
+
   // Address
   if (placeDetails.formatted_address) {
     content += `<p><strong>Address:</strong> ${placeDetails.formatted_address}</p>`;
   }
-  
+
   // Phone
   if (placeDetails.formatted_phone_number) {
     content += `<p><strong>Phone:</strong> ${placeDetails.formatted_phone_number}</p>`;
   }
-  
+
   // Rating
   if (placeDetails.rating) {
     content += `<p><strong>Rating:</strong> ${placeDetails.rating} / 5</p>`;
   }
-  
+
   // Website
   if (placeDetails.website) {
     content += `<p><strong>Website:</strong> <a href="${placeDetails.website}" target="_blank">${placeDetails.website}</a></p>`;
   }
-  
+
   // Types
   if (placeDetails.types && placeDetails.types.length > 0) {
     content += `<p><strong>Type:</strong> ${placeDetails.types.map(type => type.replace(/_/g, ' ')).join(', ')}</p>`;
   }
-  
+
   // Opening hours
   if (placeDetails.opening_hours && placeDetails.opening_hours.weekday_text) {
     content += '<p><strong>Opening Hours:</strong></p><ul>';
@@ -263,15 +261,15 @@ function createPlaceDetailsInfoWindow(placeDetails) {
     });
     content += '</ul>';
   }
-  
+
   // Photos - Just show the first one if available
   if (placeDetails.photos && placeDetails.photos.length > 0) {
     const photoUrl = placeDetails.photos[0].getUrl({ maxWidth: 300, maxHeight: 200 });
     content += `<img src="${photoUrl}" alt="${placeDetails.name}" style="width:100%;max-width:300px;margin-top:10px;">`;
   }
-  
+
   content += '</div>';
-  
+
   return content;
 }
 
@@ -432,14 +430,14 @@ async function renderPoint(point, index, opacity = 1.0) {
       content: markerElement
     });
     markers.push(marker);
-    
+
     // Add event listener to show place details when clicked
     if (point.placeId) {
       marker.addListener('click', async () => {
         // Show loading state in info window
         infoWindow.setContent('<div style="text-align:center;padding:10px;">Loading place details...</div>');
         infoWindow.open(map, marker);
-        
+    
         // Fetch place details and update info window
         const placeDetails = await fetchPlaceDetails(point.placeId);
         if (placeDetails) {
@@ -613,17 +611,17 @@ function updateTimelineItemWithPlaceDetails(item, timelineItem, placeDetails) {
   detailsButton.textContent = 'View Details';
   detailsButton.addEventListener('click', (e) => {
     e.stopPropagation(); // Prevent triggering the parent click event
-    
+
     // Create and display modal with place details
     showPlaceDetailsModal(placeDetails);
   });
-  
+
   // Append the button to the timeline item
   timelineItem.appendChild(detailsButton);
-  
+
   // Add a class to indicate this item has details
   timelineItem.classList.add('has-details');
-  
+
   // If we have a more specific name from Place Details, update it
   if (placeDetails.name && placeDetails.name !== item.name) {
     const nameElement = timelineItem.querySelector('strong');
@@ -638,11 +636,11 @@ function showPlaceDetailsModal(placeDetails) {
   // Create modal container
   const modal = document.createElement('div');
   modal.className = 'place-details-modal';
-  
+
   // Create modal content
   const modalContent = document.createElement('div');
   modalContent.className = 'modal-content';
-  
+
   // Create close button
   const closeButton = document.createElement('span');
   closeButton.className = 'close-button';
@@ -650,26 +648,26 @@ function showPlaceDetailsModal(placeDetails) {
   closeButton.addEventListener('click', () => {
     document.body.removeChild(modal);
   });
-  
+
   // Create content container
   const contentContainer = document.createElement('div');
   contentContainer.innerHTML = createPlaceDetailsInfoWindow(placeDetails);
-  
+
   // Assemble modal
   modalContent.appendChild(closeButton);
   modalContent.appendChild(contentContainer);
   modal.appendChild(modalContent);
-  
+
   // Add click outside to close
   modal.addEventListener('click', (e) => {
     if (e.target === modal) {
       document.body.removeChild(modal);
     }
   });
-  
+
   // Add to body
   document.body.appendChild(modal);
-  
+
   // Add ESC key to close
   const escHandler = (e) => {
     if (e.key === 'Escape') {
@@ -685,10 +683,10 @@ function formatDuration(startTime, endTime) {
   const start = moment(startTime);
   const end = moment(endTime);
   const duration = moment.duration(end.diff(start));
-  
+
   const hours = Math.floor(duration.asHours());
   const minutes = duration.minutes();
-  
+
   if (hours > 0) {
     return `${hours}h ${minutes}m`;
   } else {
@@ -714,17 +712,17 @@ function createTimelineItem(item, index) {
   if (item.type === "visit") {
     content = `
       <strong>${item.name || "Unknown Location"}</strong><br>
-      ${startTime} - ${endTime} (${duration})
+      ${startTime} - ${endTime} (${duration})<br>
     `;
-    
+
     // Add a loading indicator for places with IDs
-    if (item.placeId) {
-      content += '<div class="place-loading">Loading details...</div>';
-    }
+//     if (item.placeId) {
+//       content += '<div class="place-loading">Loading details...</div>';
+//     }
   } else if (item.type === "activity") {
     content = `
       <strong>${item.activity || "Movement"}</strong><br>
-      ${startTime} - ${endTime} (${duration})
+      ${startTime} - ${endTime} (${duration})<br>
     `;
   }
 
@@ -736,98 +734,9 @@ function createTimelineItem(item, index) {
   return timelineItem;
 }
 
-// Add some CSS for the place details features
-function addPlaceDetailsStyles() {
-  const style = document.createElement('style');
-  style.textContent = `
-    .place-details-info {
-      padding: 10px;
-      max-width: 300px;
-      font-family: Arial, sans-serif;
-    }
-    
-    .place-details-info h3 {
-      margin-top: 0;
-      color: #4285F4;
-    }
-    
-    .place-details-info p {
-      margin: 5px 0;
-    }
-    
-    .place-details-info ul {
-      margin: 5px 0;
-      padding-left: 20px;
-    }
-    
-    .place-loading {
-      font-style: italic;
-      color: #888;
-      font-size: 0.9em;
-    }
-    
-    .timeline-item.has-details {
-      background-color: #f0f7ff;
-    }
-    
-    .details-button {
-      background-color: #4285F4;
-      color: white;
-      border: none;
-      padding: 5px 10px;
-      border-radius: 4px;
-      cursor: pointer;
-      margin-top: 5px;
-      font-size: 0.9em;
-    }
-    
-    .details-button:hover {
-      background-color: #356ac3;
-    }
-    
-    .place-details-modal {
-      position: fixed;
-      z-index: 1000;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0,0,0,0.7);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    
-    .modal-content {
-      background-color: white;
-      border-radius: 8px;
-      padding: 20px;
-      max-width: 500px;
-      max-height: 90vh;
-      overflow-y: auto;
-      position: relative;
-    }
-    
-    .close-button {
-      position: absolute;
-      right: 10px;
-      top: 10px;
-      font-size: 24px;
-      cursor: pointer;
-      color: #666;
-    }
-    
-    .close-button:hover {
-      color: #000;
-    }
-  `;
-  document.head.appendChild(style);
-}
-
 window.onload = async () => {
   try {
     initMap();
-    addPlaceDetailsStyles();
 
     // Add this to the window.onload function, before the datePicker event listener
     const timeFormatToggle = document.createElement("button");

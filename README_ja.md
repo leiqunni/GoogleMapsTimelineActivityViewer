@@ -28,7 +28,7 @@ Google Maps Timeline Activity Viewerは、Google Mapsのタイムラインから
 注意：このアプリケーションで地図を正しく表示するには、有効なGoogle Maps APIキーが必要です。APIキーは[Google Cloud Platform Console](https://console.cloud.google.com/)から取得できます。
 
 ## アプリケーションの実行
-このアプリケーションはNode.jsを必要としません。PHPのビルトインウェブサーバーを使用して実行できます。
+PHPのビルトインウェブサーバーを使用して実行できます。
 
 ### Windowsの場合：
 

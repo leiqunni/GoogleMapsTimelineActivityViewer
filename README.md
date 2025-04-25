@@ -27,18 +27,13 @@ Google Maps Timeline Activity Viewer is a tool that allows you to visualize and 
 Note: You need a valid Google Maps API key to properly display maps in this application. You can obtain a key from the [Google Cloud Platform Console](https://console.cloud.google.com/).
 
 ## Running the Application
-This application doesn't require Node.js. You can run it using a built-in web server with PHP or Python.
+You can run it using a built-in web server with PHP.
 
 ### For Windows:
 
 #### Using PHP built-in web server:
 ```
 php -S 0.0.0.0:8888
-```
-
-#### Using Python built-in web server:
-```
-python -m http.server 8888
 ```
 
 After starting the web server, access the application by opening your browser and navigating to:
@@ -53,7 +48,7 @@ This application processes your location data locally on your device. No data is
 - Modern web browser with JavaScript enabled
 - Google Maps Timeline data (JSON format)
 - Google Maps API key
-- PHP or Python for running the local web server
+- PHP for running the local web server
 
 ## License
 This project is licensed under the MIT License - see the LICENSE file for details.

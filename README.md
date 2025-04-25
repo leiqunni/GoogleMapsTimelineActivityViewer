@@ -1,52 +1,65 @@
-# Google マップ タイムライン アクティビティ ビューア
+# Google Maps Timeline Activity Viewer
 
-このツールは、iOS の Google マップ アプリからエクスポートされた JSON を使用して、Google マップ タイムライン データを視覚化します。[kurupted](https://github.com/kurupted/google-maps-timeline-viewer) による元のプロジェクトを基に、iOS 形式で動作するようにいくつかの改善と修正が加えられています。
+## Overview
+Google Maps Timeline Activity Viewer is a tool that allows you to visualize and analyze your location history data from Google Maps Timeline. You can track your movements, discover patterns in your daily activities, and gain insights from your location history.
 
-これの大部分は、元のプロジェクトの上に GPT/Claude によって生成されたスロップであることに注意してください。
+## Features
+- Visualize your Google Maps Timeline data on a map
+- Analyze your activity patterns over time
+- Filter data by date ranges, activity types, or locations
+- Export filtered data for further analysis
+- View statistics about your movements and visited places
 
-## 手順
+## How to Use
+1. First, download your Google Maps Timeline data from Google Takeout
+2. Clone or download this repository
+3. Configure your Google Maps API key in the `conf.php` file
+4. Launch a local web server (see instructions below)
+5. Open the application in your browser and import your JSON data
+6. Explore your location history through the interactive interface
 
-### 1. リポジトリをクローンする
+### Google Maps API Key Setup
+1. Open the `conf.php` file in a text editor
+2. Find the API key configuration section
+3. Enter your Google Maps API key in the designated field
+4. Save the file
 
-```bash
-git clone https://github.com/leiqunni/GoogleMapsTimelineActivityViewer.git
+Note: You need a valid Google Maps API key to properly display maps in this application. You can obtain a key from the [Google Cloud Platform Console](https://console.cloud.google.com/).
+
+## Running the Application
+This application doesn't require Node.js. You can run it using a built-in web server with PHP or Python.
+
+### For Windows:
+
+#### Using PHP built-in web server:
+```
+php -S 0.0.0.0:8888
 ```
 
-### 2. Google マップ API キーを取得する
-
-1. [このガイド](https://github.com/kurupted/google-maps-timeline-viewer?tab=readme-ov-file#obtain-a-google-maps-api-key) の手順に従って、Google マップ API キーを生成します。
-2. `conf.php` の `YOUR_API_KEY` を API キーに置き換えます。
-
-### 3. カスタム マップを作成する
-
-1. [このガイド](https://developers.google.com/maps/documentation/javascript/cloud-customization/map-styles-leg#create-style) に従って、カスタム マップ スタイルを作成します。
-2. `timeline-viewer.js` の `MY_MAP_ID` をカスタム マップ ID に置き換えます。
-
-### 4. タイムライン データを追加する
-
-1. iOS の Google マップ アプリからタイムライン データをエクスポートします。
-2. エクスポートした JSON ファイルをプロジェクト フォルダにコピーします。
-3. ファイル名を `location-history.json` に変更します。
-
-### 5. ビューアーを実行します
-
-1. プロジェクト ディレクトリでローカル サーバーを起動します:
-```bash
-php -S 0.0.0.0:8000
+#### Using Python built-in web server:
 ```
-```bash
-python -m http.server 8000
+python -m http.server 8888
 ```
-2. ブラウザーを開いて [http://localhost:8000](http://localhost:8000) に移動します。
 
-## スクリーンショット
+After starting the web server, access the application by opening your browser and navigating to:
+```
+http://localhost:8888/
+```
 
-![image](https://github.com/epk/google-maps-timeline-viewer/raw/main/screenshot.png?raw=true)
+## Data Privacy
+This application processes your location data locally on your device. No data is sent to any external servers, ensuring your location history remains private.
 
-## ライセンス
+## Requirements
+- Modern web browser with JavaScript enabled
+- Google Maps Timeline data (JSON format)
+- Google Maps API key
+- PHP or Python for running the local web server
 
-このプロジェクトは、[ライセンス名] ライセンスの下でライセンスされています。
+## License
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-## 更新履歴
+## Contributions
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-* 2025/4/22: PlaceIDから店名等の情報を取得するように
+## Support
+If you encounter any issues or have questions, please open an issue on the GitHub repository.

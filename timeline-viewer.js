@@ -694,7 +694,7 @@ function formatDuration(startTime, endTime) {
   }
 }
 
-// Update the createTimelineItem function to show duration
+// Update the createTimelineItem function to show duration and index number
 function createTimelineItem(item, index) {
   const timelineItem = document.createElement("div");
   timelineItem.className = "timeline-item";
@@ -708,27 +708,50 @@ function createTimelineItem(item, index) {
   const endTime = formatTimeWithTimezone(item.end_time, timezone);
   const duration = formatDuration(item.start_time, item.end_time);
 
-  let content = '';
+  // Create a marker number indicator
+  const markerNumber = document.createElement("div");
+  markerNumber.className = "marker-number";
+  markerNumber.textContent = (index + 1).toString();
+  
+  // Set the background color based on the item type
+  markerNumber.style.backgroundColor = item.type === "visit" ? "#4285F4" : "#FF0000";
+
+  timelineItem.appendChild(markerNumber);
+
+  const contentDiv = document.createElement("div");
+  contentDiv.className = "timeline-content";
+  
   if (item.type === "visit") {
-    content = `
+    contentDiv.innerHTML = `
       <strong>${item.name || "Unknown Location"}</strong><br>
       ${startTime} - ${endTime} (${duration})<br>
     `;
-
-    // Add a loading indicator for places with IDs
-//     if (item.placeId) {
-//       content += '<div class="place-loading">Loading details...</div>';
-//     }
   } else if (item.type === "activity") {
-    content = `
+    contentDiv.innerHTML = `
       <strong>${item.activity || "Movement"}</strong><br>
       ${startTime} - ${endTime} (${duration})<br>
     `;
   }
 
-  timelineItem.innerHTML = content;
+  timelineItem.appendChild(contentDiv);
+  
   timelineItem.addEventListener('click', () => {
-    // Existing click handler code...
+    // Highlight this item and center the map on this point
+    document.querySelectorAll('.timeline-item').forEach(item => {
+      item.classList.remove('highlighted');
+    });
+    timelineItem.classList.add('highlighted');
+    
+    // Center map on the selected location
+    if (item.type === "visit") {
+      map.setCenter({ lat: item.latitude, lng: item.longitude });
+      map.setZoom(15);
+    } else if (item.type === "activity") {
+      const bounds = new google.maps.LatLngBounds();
+      bounds.extend({ lat: item.start_latitude, lng: item.start_longitude });
+      bounds.extend({ lat: item.end_latitude, lng: item.end_longitude });
+      map.fitBounds(bounds, { padding: 50 });
+    }
   });
 
   return timelineItem;

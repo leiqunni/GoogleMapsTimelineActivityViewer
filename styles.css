@@ -1,83 +1,3 @@
-.place-details-info {
-  padding: 10px;
-  max-width: 300px;
-  font-family: Arial, sans-serif;
-}
-
-.place-details-info h3 {
-  margin-top: 0;
-  color: #4285F4;
-}
-
-.place-details-info p {
-  margin: 5px 0;
-}
-
-.place-details-info ul {
-  margin: 5px 0;
-  padding-left: 20px;
-}
-
-.place-loading {
-  font-style: italic;
-  color: #888;
-  font-size: 0.9em;
-}
-
-.timeline-item.has-details {
-  background-color: #f0f7ff;
-}
-
-.details-button {
-  background-color: #4285F4;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-  margin-top: 5px;
-  font-size: 0.9em;
-}
-
-.details-button:hover {
-  background-color: #356ac3;
-}
-
-.place-details-modal {
-  position: fixed;
-  z-index: 1000;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0,0,0,0.7);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.modal-content {
-  background-color: white;
-  border-radius: 8px;
-  padding: 20px;
-  max-width: 500px;
-  max-height: 90vh;
-  overflow-y: auto;
-  position: relative;
-}
-
-.close-button {
-  position: absolute;
-  right: 10px;
-  top: 10px;
-  font-size: 24px;
-  cursor: pointer;
-  color: #666;
-}
-
-.close-button:hover {
-  color: #000;
-}
 /* Base styles */
 * {
   margin: 0;
@@ -237,7 +157,10 @@ html {
   padding: 8px;
 }
 
+/* Timeline item styles - Merged and updated */
 .timeline-item {
+  display: flex;
+  align-items: flex-start;
   padding: 12px;
   background: white;
   border: 1px solid #e0e0e0;
@@ -255,6 +178,115 @@ html {
 .timeline-item.highlighted {
   background: #e8f0fe;
   border-left: 4px solid #4285f4;
+}
+
+/* Marker number styling for timeline items */
+.marker-number {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 12px;
+  margin-right: 10px;
+  flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+.timeline-content {
+  flex-grow: 1;
+}
+
+/* Place details related styles */
+.place-details-info {
+  padding: 10px;
+  max-width: 300px;
+  font-family: Arial, sans-serif;
+}
+
+.place-details-info h3 {
+  margin-top: 0;
+  color: #4285F4;
+}
+
+.place-details-info p {
+  margin: 5px 0;
+}
+
+.place-details-info ul {
+  margin: 5px 0;
+  padding-left: 20px;
+}
+
+.place-loading {
+  font-style: italic;
+  color: #888;
+  font-size: 0.9em;
+}
+
+/* Timeline items with details */
+.timeline-item.has-details {
+  background-color: #f0f7ff;
+}
+
+.has-details .marker-number {
+  border: 2px solid #4CAF50;
+}
+
+/* Details button */
+.details-button {
+  background-color: #4285F4;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 5px;
+  font-size: 0.9em;
+}
+
+.details-button:hover {
+  background-color: #356ac3;
+}
+
+/* Modal styles */
+.place-details-modal {
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.close-button {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+}
+
+.close-button:hover {
+  color: #000;
 }
 
 /* Loading overlay */
@@ -332,86 +364,4 @@ html {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
-}
-
-//
-.place-details-info {
-  padding: 10px;
-  max-width: 300px;
-  font-family: Arial, sans-serif;
-}
-
-.place-details-info h3 {
-  margin-top: 0;
-  color: #4285F4;
-}
-
-.place-details-info p {
-  margin: 5px 0;
-}
-
-.place-details-info ul {
-  margin: 5px 0;
-  padding-left: 20px;
-}
-
-.place-loading {
-  font-style: italic;
-  color: #888;
-  font-size: 0.9em;
-}
-
-.timeline-item.has-details {
-  background-color: #f0f7ff;
-}
-
-.details-button {
-  background-color: #4285F4;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-  margin-top: 5px;
-  font-size: 0.9em;
-}
-
-.details-button:hover {
-  background-color: #356ac3;
-}
-
-.place-details-modal {
-  position: fixed;
-  z-index: 1000;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0,0,0,0.7);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.modal-content {
-  background-color: white;
-  border-radius: 8px;
-  padding: 20px;
-  max-width: 500px;
-  max-height: 90vh;
-  overflow-y: auto;
-  position: relative;
-}
-
-.close-button {
-  position: absolute;
-  right: 10px;
-  top: 10px;
-  font-size: 24px;
-  cursor: pointer;
-  color: #666;
-}
-
-.close-button:hover {
-  color: #000;
 }

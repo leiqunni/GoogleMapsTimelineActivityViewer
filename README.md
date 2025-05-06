@@ -3,6 +3,8 @@
 ## Overview
 Google Maps Timeline Activity Viewer is a tool that allows you to visualize and analyze your location history data from Google Maps Timeline. You can track your movements, discover patterns in your daily activities, and gain insights from your location history.
 
+![Image](https://github.com/user-attachments/assets/2e48a9c2-60ab-40d1-a0c2-d68a6621b2fb)
+
 ## Features
 - Visualize your Google Maps Timeline data on a map
 - Analyze your activity patterns over time

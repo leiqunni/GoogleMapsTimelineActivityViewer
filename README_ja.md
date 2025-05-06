@@ -3,6 +3,8 @@
 ## 概要
 Google Maps Timeline Activity Viewerは、Google Mapsのタイムラインから取得した位置情報履歴データを視覚化・分析するためのツールです。あなたの移動履歴やパターンを追跡し、日々の活動に関する洞察を得ることができます。
 
+![Image](https://github.com/user-attachments/assets/2e48a9c2-60ab-40d1-a0c2-d68a6621b2fb)
+
 ## 機能
 - Google Mapsのタイムラインデータを地図上で視覚化
 - 時間経過に伴う活動パターンの分析

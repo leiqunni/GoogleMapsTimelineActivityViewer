@@ -13,18 +13,17 @@ Google Maps Timeline Activity Viewer is a tool that allows you to visualize and 
 - View statistics about your movements and visited places
 
 ## How to Use
-1. First, download your Google Maps Timeline data from Google Takeout
+1. First, export `location-history.json` from the Google Maps application on your smartphone
 2. Clone or download this repository
-3. Configure your Google Maps API key in the `conf.php` file
-4. Launch a local web server (see instructions below)
+3. Set up your Google Maps API key in the `index.html` file
+4. Start a local web server (see instructions below)
 5. Open the application in your browser and import your JSON data
 6. Explore your location history through the interactive interface
 
 ### Google Maps API Key Setup
-1. Open the `conf.php` file in a text editor
-2. Find the API key configuration section
-3. Enter your Google Maps API key in the designated field
-4. Save the file
+1. Open the `index.html` file in a text editor
+2. Replace "YOUR API KEY" with your Google Maps API key
+3. Save the file
 
 Note: You need a valid Google Maps API key to properly display maps in this application. You can obtain a key from the [Google Cloud Platform Console](https://console.cloud.google.com/).
 
@@ -60,3 +59,35 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## Support
 If you encounter any issues or have questions, please open an issue on the GitHub repository.
+
+## Changelog
+```
+Remove code duplication and redundant parts.
+```
+
+Main duplications and redundant parts have been removed:
+
+### Key Changes:
+1. **Unified Coordinate Parsing**
+   * Unified the `parseCoordinates` function and removed duplication in each parser function
+2. **Integrated Data Analysis**
+   * Unified visit and activity object creation with `createLocationObject` function
+   * Integrated parsing of different data formats with `parseDataSegment` function
+   * Unified timeline path processing with `parseTimelinePath` function
+3. **Reduced Code Duplication**
+   * Integrated coordinate boundary extension processing
+   * Unified marker creation and clearing processes
+   * Array-based event handler setup
+4. **Function Simplification**
+   * Used array filters for conditional content generation in `createPlaceDetailsInfoWindow`
+   * Simplified style settings with `Object.assign`
+   * Used spread operator for unified marker and polyline clearing
+5. **Optimized Conditional Processing**
+   * Utilized ternary operators and Optional chaining
+   * Integrated duplicate conditional branches
+6. **Structural Improvements**
+   * Grouped related functionality
+   * Batch event handler setup using arrays
+   * Unified initialization processes
+
+This cleanup significantly reduced code size and improved maintainability while preserving all original functionality.
